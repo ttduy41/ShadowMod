@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHADOW SHOP - VIP SYSTEM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #7b2cbf; --cyan: #00f2ff; --bg: #050505; --card: #12141d; --text: #e2e8f0; --green: #00ff88; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
+
+        /* HEADER & MENU SYSTEM */
+        .header { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000; }
+        
+        .menu-overlay { position: fixed; top: 0; left: -100%; width: 280px; height: 100%; background: var(--card); z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 20px; border-right: 2px solid var(--primary); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        .menu-overlay.active { left: 0; }
+        
+        .dark-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1500; display: none; backdrop-filter: blur(3px); }
+        
+        .close-menu { text-align: right; font-size: 28px; cursor: pointer; color: var(--cyan); margin-bottom: 20px; }
+        
+        .menu-item { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; color: var(--text); display: flex; align-items: center; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        .menu-item i { margin-right: 15px; width: 20px; text-align: center; color: var(--cyan); }
+        .menu-item:hover { background: #1a1d29; color: var(--cyan); padding-left: 25px; }
+
+        /* MAIN CONTENT */
+        .container { padding: 15px; max-width: 500px; margin: auto; }
+        .card { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #2d334a; margin-bottom: 20px; text-align: center; position: relative; overflow: hidden; }
+        .card h4 { margin: 10px 0; font-size: 18px; text-transform: uppercase; }
+        
+        .input-pro { width: 100%; padding: 12px; margin: 8px 0; background: #080a12; border: 1px solid #333; color: white; border-radius: 10px; outline: none; box-sizing: border-box; font-size: 14px; }
+        .input-pro:focus { border-color: var(--cyan); }
+        
+        .btn-main { width: 100%; padding: 14px; background: var(--cyan); border: none; font-weight: 900; border-radius: 10px; cursor: pointer; color: #000; text-transform: uppercase; transition: 0.3s; }
+        .btn-main:hover { transform: scale(1.02); box-shadow: 0 0 15px var(--cyan); }
+        
+        .item-img { width: 100%; border-radius: 10px; height: 150px; object-fit: cover; border: 1px solid var(--primary); margin-bottom: 10px; }
+        .price-tag { color: var(--cyan); font-weight: 800; font-size: 20px; margin: 10px 0; display: block; }
+        
+        .receive-box { background: rgba(0, 255, 136, 0.1); border-radius: 10px; padding: 12px; margin: 10px 0; border: 1px dashed var(--green); text-align: center; }
+
+        /* ZALO FLOATING BUTTON */
+        .zalo-btn { position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px; background: #0084ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3000; box-shadow: 0 5px 20px rgba(0,132,255,0.5); animation: bounce 2s infinite; border: 2px solid white; }
+        .zalo-btn img { width: 40px; height: 40px; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+        /* FORM LOGIN/REG (MODAL) */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 350px; background: var(--card); border: 2px solid var(--primary); padding: 25px; border-radius: 20px; z-index: 3000; }
+    </style>
+</head>
+<body>
+
+    <div class="dark-bg" id="dark-bg" onclick="closeAll()"></div>
+
+    <div class="menu-overlay" id="menu-overlay">
+        <div class="close-menu" onclick="toggleMenu()"><i class="fas fa-times"></i></div>
+        <div style="text-align:center; margin-bottom: 30px;">
+            <div style="font-weight:900; font-size: 22px; color: white;">SHADOW <span style="color:var(--cyan)">SHOP</span></div>
+            <p style="font-size: 12px; color: #888;">Hệ thống cung cấp dịch vụ Game</p>
+        </div>
+        
+        <a href="#" class="menu-item" onclick="openModal('login')"><i class="fas fa-sign-in-alt"></i> Đăng Nhập</a>
+        <a href="#" class="menu-item" onclick="openModal('reg')"><i class="fas fa-user-plus"></i> Đăng Ký</a>
+        <a href="#section-store" class="menu-item" onclick="toggleMenu()"><i class="fas fa-shopping-cart"></i> Cửa Hàng</a>
+        <a href="#section-nap" class="menu-item" onclick="toggleMenu()"><i class="fas fa-credit-card"></i> Nạp Thẻ Cào</a>
+        <a href="#" class="menu-item"><i class="fas fa-history"></i> Lịch Sử Mua Hàng</a>
+    </div>
+
+    <div id="login-modal" class="modal">
+        <h3 style="text-align:center; color:var(--cyan)">ĐĂNG NHẬP</h3>
+        <input type="text" class="input-pro" placeholder="Tài khoản">
+        <input type="password" class="input-pro" placeholder="Mật khẩu">
+        <button class="btn-main" style="margin-top:10px">VÀO HỆ THỐNG</button>
+        <button class="btn-main" style="background:none; color:#888; font-size:12px;" onclick="closeAll()">Đóng</button>
+    </div>
+
+    <div class="header">
+        <i class="fas fa-bars" style="color: var(--cyan); font-size: 26px; cursor: pointer;" onclick="toggleMenu()"></i>
+        <div style="font-weight:900; font-size: 18px;">SHADOW <span style="color:var(--cyan)">SHOP</span></div>
+        <div style="color:var(--green); font-weight:bold; border: 1px solid var(--green); padding: 5px 12px; border-radius: 20px; font-size: 14px; background: rgba(0,255,136,0.1);">17.400đ</div>
+    </div>
+
+    <div class="container">
+        <h3 id="section-store" style="color: var(--cyan); border-left: 4px solid var(--cyan); padding-left: 10px;"><i class="fas fa-fire"></i> SẢN PHẨM HOT</h3>
+        
+        <div class="card">
+            <img src="lv5.jpg" class="item-img" alt="Clone LV5">
+            <h4>Tài Khoản Clone LV5</h4>
+            <span class="price-tag">2.500đ <small style="font-size:12px; color:#888;">/ Acc</small></span>
+            <button class="btn-main">MUA NGAY</button>
+        </div>
+
+        <div class="card">
+            <img src="drip.jpg" class="item-img" alt="Drip">
+            <h4>Dịch Vụ Drip VIP</h4>
+            <select class="input-pro" id="drip-select">
+                <option value="60000">Gói 1 Ngày - 60.000đ</option>
+                <option value="100000">Gói 7 Ngày - 100.000đ</option>
+                <option value="160000">Gói 30 Ngày - 160.000đ</option>
+            </select>
+            <button class="btn-main">MUA DỊCH VỤ</button>
+        </div>
+
+        <div class="card">
+            <img src="zygame.jpg" class="item-img" alt="Zygame">
+            <h4>Dịch Vụ Zygame VIP</h4>
+            <select class="input-pro" id="zygame-select">
+                <option value="35000">Gói 1 Ngày - 35.000đ</option>
+                <option value="55000">Gói 3 Ngày - 55.000đ</option>
+                <option value="85000">Gói 7 Ngày - 85.000đ</option>
+                <option value="130000">Gói 30 Ngày - 130.000đ</option>
+            </select>
+            <button class="btn-main">MUA DỊCH VỤ</button>
+        </div>
+
+        <h3 id="section-nap" style="color: var(--cyan); border-left: 4px solid var(--cyan); padding-left: 10px;"><i class="fas fa-wallet"></i> NẠP TIỀN HỆ THỐNG</h3>
+        <div class="card">
+            <label style="font-size: 12px; color: var(--cyan); float: left;">Chọn nhà mạng:</label>
+            <select id="card-type" class="input-pro" onchange="updateMoney()">
+                <option value="Viettel">Viettel (CK 13%)</option>
+                <option value="Vinaphone">Vinaphone (CK 10%)</option>
+                <option value="Mobifone">Mobifone (CK 18%)</option>
+                <option value="Garena">Garena (CK 12.5%)</option>
+                <option value="Zing">Zing (CK 12.5%)</option>
+                <option value="Vcoin">Vcoin (CK 13%)</option>
+                <option value="Scoin">Scoin (CK 33.001%)</option>
+            </select>
+            
+            <label style="font-size: 12px; color: var(--cyan); float: left;">Chọn mệnh giá:</label>
+            <select id="card-amount" class="input-pro" onchange="updateMoney()">
+                <option value="10000">10.000đ</option>
+                <option value="20000">20.000đ</option>
+                <option value="50000">50.000đ</option>
+                <option value="100000">100.000đ</option>
+                <option value="200000">200.000đ</option>
+                <option value="500000">500.000đ</option>
+                <option value="1000000">1.000.000đ</option>
+            </select>
+
+            <div class="receive-box">
+                Số tiền thực nhận: <b id="receive-text" style="color:var(--green); font-size:18px;">8.700đ</b>
+            </div>
+
+            <input type="text" id="seri" class="input-pro" placeholder="Nhập mã Seri thẻ">
+            <input type="text" id="pin" class="input-pro" placeholder="Nhập mã PIN (Mã thẻ)">
+            
+            <button id="btn-nap" class="btn-main" style="background:var(--green); margin-top: 10px;" onclick="processDeposit()">GỬI THẺ CÀO NGAY</button>
+            <p style="font-size: 11px; color: #888; margin-top: 15px;">Thẻ sẽ được duyệt tự động từ 30s - 2p.</p>
+        </div>
+    </div>
+
+    <a href="https://zalo.me/84364684151" target="_blank" class="zalo-btn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo Contact">
+    </a>
+
+    <script>
+        // CẤU HÌNH LINK SCRIPT
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0MCFow81zcZbk2uV4n3wY8IwncS77Ck_OTk6khjyDvEloEaVpr0hk7y1LqbHgm1Llnw/exec";
+        const FEES = { "Viettel": 0.13, "Vinaphone": 0.10, "Mobifone": 0.18, "Garena": 0.125, "Zing": 0.125, "Vcoin": 0.13, "Scoin": 0.33001 };
+
+        // XỬ LÝ MENU & MODAL
+        function toggleMenu() {
+            document.getElementById('menu-overlay').classList.toggle('active');
+            const bg = document.getElementById('dark-bg');
+            bg.style.display = bg.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function openModal(type) {
+            toggleMenu();
+            document.getElementById('login-modal').style.display = 'block';
+            document.getElementById('dark-bg').style.display = 'block';
+        }
+
+        function closeAll() {
+            document.getElementById('menu-overlay').classList.remove('active');
+            document.getElementById('dark-bg').style.display = 'none';
+            document.getElementById('login-modal').style.display = 'none';
+        }
+
+        // TÍNH TOÁN TIỀN NẠP
+        function updateMoney() {
+            const type = document.getElementById('card-type').value;
+            const amount = document.getElementById('card-amount').value;
+            const receive = Math.floor(amount * (1 - FEES[type]));
+            document.getElementById('receive-text').innerText = receive.toLocaleString() + "đ";
+        }
+
+        // GỬI DỮ LIỆU NẠP THẺ
+        async function processDeposit() {
+            const seri = document.getElementById('seri').value.trim();
+            const pin = document.getElementById('pin').value.trim();
+            const btn = document.getElementById('btn-nap');
+
+            if(!seri || !pin) return alert("Vui lòng điền đủ Seri và Mã thẻ!");
+
+            btn.innerText = "ĐANG XỬ LÝ...";
+            btn.disabled = true;
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({
+                        action: "deposit",
+                        user: "Khách_Vinh",
+                        type: document.getElementById('card-type').value,
+                        amount: document.getElementById('card-amount').value,
+                        receive: document.getElementById('receive-text').innerText,
+                        seri: seri,
+                        pin: pin
+                    })
+                });
+                alert("Gửi thẻ thành công! Vui lòng đợi Admin duyệt đơn.");
+                location.reload();
+            } catch (e) {
+                alert("Có lỗi xảy ra, vui lòng thử lại!");
+                btn.innerText = "GỬI THẺ CÀO NGAY";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
